@@ -27,7 +27,7 @@ const localGuardianSchema = z.object({
 
 // Zod schema for Student
 const studentValidationSchema = z.object({
-  id: z.string().optional(), // Optional field
+  id: z.string(), // Optional field
   name: userNameSchema,
   gender: z.enum(["male", "female", "others"]),
   dateOfBirth: z.string().optional(), // Optional field

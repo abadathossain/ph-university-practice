@@ -1,7 +1,12 @@
-import { Student } from "./student.interface";
+import { TStudent } from "./student.interface";
 import { StudentModel } from "./student.model";
 
-const createStudentIntoDB = async (student: Student) => {
+const createStudentIntoDB = async (student: TStudent) => {
+  // if (await StudentModel.isEmailExists(student.email as string)) {
+  //   console.log("hello");
+  //   throw new Error("User email already exist for static method");
+  // }
+
   const result = await StudentModel.create(student);
   return result;
 };
@@ -16,9 +21,13 @@ const getSingleStudentFromDB = async (id: string) => {
 };
 const updateStudentIntoDB = async (
   id: string,
-  updateData: Partial<Student>
-): Promise<Student | null> => {
+  updateData: Partial<TStudent>
+): Promise<TStudent | null> => {
   const result = await StudentModel.findOneAndUpdate({ id }, updateData);
+  return result;
+};
+const deleteSingleStudentFromDB = async (id: string) => {
+  const result = await StudentModel.findOneAndDelete({ id });
   return result;
 };
 
@@ -26,5 +35,6 @@ export const StudentServices = {
   createStudentIntoDB,
   getAllStudentsFromDB,
   getSingleStudentFromDB,
+  deleteSingleStudentFromDB,
   updateStudentIntoDB,
 };

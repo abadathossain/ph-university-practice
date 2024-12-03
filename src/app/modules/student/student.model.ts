@@ -1,12 +1,13 @@
 import { Schema, model } from "mongoose";
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  IStudentModel,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  TUserName,
 } from "./student.interface";
 
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
     required: true,
@@ -20,7 +21,7 @@ const userNameSchema = new Schema<UserName>({
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: true,
@@ -47,7 +48,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuradianSchema = new Schema<LocalGuardian>({
+const localGuradianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: true,
@@ -66,32 +67,53 @@ const localGuradianSchema = new Schema<LocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<Student>({
-  id: { type: String },
-  name: {
-    type: userNameSchema,
-    required: true,
+const studentSchema = new Schema<TStudent, IStudentModel>(
+  {
+    id: { type: String },
+    name: {
+      type: userNameSchema,
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "others"],
+      required: true,
+    },
+    dateOfBirth: { type: String },
+    email: { type: String, required: true, unique: true },
+    contactNo: { type: String, required: true },
+    emergencyContactNo: { type: String, required: true },
+    bloogGroup: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+    presentAddress: { type: String, required: true },
+    permanentAddres: { type: String, required: true },
+    guardian: guardianSchema,
+    localGuardian: localGuradianSchema,
+    profileImg: { type: String },
+    isActive: {
+      type: String,
+      enum: ["active", "blocked"],
+      default: "active",
+    },
   },
-  gender: {
-    type: String,
-    enum: ["male", "female", "others"],
-    required: true,
-  },
-  dateOfBirth: { type: String },
-  email: { type: String, required: true },
-  contactNo: { type: String, required: true },
-  emergencyContactNo: { type: String, required: true },
-  bloogGroup: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
-  presentAddress: { type: String, required: true },
-  permanentAddres: { type: String, required: true },
-  guardian: guardianSchema,
-  localGuardian: localGuradianSchema,
-  profileImg: { type: String },
-  isActive: {
-    type: String,
-    enum: ["active", "blocked"],
-    default: "active",
-  },
+
+  // { timestamps: true },
+  {
+    toJSON: {
+      virtuals: true,
+    },
+  }
+);
+// virtual
+studentSchema.virtual("fullName").get(function () {
+  return this.name.firstName + this.name.middleName + this.name.lastName;
 });
 
-export const StudentModel = model<Student>("Student", studentSchema);
+// studentSchema.statics.isEmailExists = async function (email: string) {
+//   const existngEmail = await StudentModel.findOne({ email });
+//   return existngEmail;
+// };
+
+export const StudentModel = model<TStudent, IStudentModel>(
+  "Student",
+  studentSchema
+);
